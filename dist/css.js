@@ -1,13 +1,14 @@
 
+let boardPieceWidth = 5;
+let boardPieceHeight = 5;
+let rootwidth = 45;
+let rootgoldenRatio = rootwidth / 1.61803398875;
+
 function applyStylesToElement(element, styles) {
     for (let key in styles) {
         element.style[key] = styles[key];
     }
 }
-let rootwidth = 45;
-let rootgoldenRatio = rootwidth / 1.61803398875;
-
-
 function trootCss() {
     let troot = document.getElementById("maintable");
     let backgroundcolor = document.getElementById("background");
@@ -72,8 +73,6 @@ function canvasCss() {
 
     return canvas;
 }
-let boardPieceWidth = 5;
-let boardPieceHeight = 5;
 
 function pawnCss() {
     let canvas = document.createElement("canvas");

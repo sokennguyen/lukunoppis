@@ -60,7 +60,7 @@ const PlayerButtonClick = (clickedPlayer) => {
 
 }
 
-
+//table.js
 const InitTable = () => {
     CreateNewButton('New game', () => {
         playerOnCss(true);
@@ -100,13 +100,14 @@ const InitTable = () => {
     drawTable();
 }
 
+//utils.js
 function getColourURL(colourId) {
-
     if (colourId >= 0 && colourId < pawnColors.length) {
         return pawnColors[colourId];
     }
 }
 
+//pawn.js
 async function update() { //This starts the animation
     if (!animationOn && destinationSquare !== myDestination) {
         //console.log(destinationSquare)
@@ -150,6 +151,7 @@ function addPawnCanvas() {
     }
 }
 
+//pawn.js
 function convertToPixels(targetPercentX, targetPercentY) {
 
     //Size of square
@@ -171,6 +173,7 @@ function convertToPixels(targetPercentX, targetPercentY) {
     };
 }
 
+//pawn.js
 function sendPawn(des) {
     //console.log(" destination t.sendpawn " + des)
     let desPos = positions[des];
@@ -179,12 +182,13 @@ function sendPawn(des) {
     drawPawn(y, x);
 }
 
+//pawn.js
 //Start position of pawn
 let startPixel = convertToPixels(87, 5)
 let xPosition = startPixel.x;
 let yPosition = startPixel.y;
 
-
+//pawn.js
 function drawPawn(y, x) {
 
     let XandY = convertToPixels(y, x)
@@ -252,7 +256,7 @@ function drawPawn(y, x) {
     }
 
 }
-//TODO: add image for start square
+//table.js
 function drawTable() {
     let startCordinates = [100, 10];
     let squareIndex = 0;

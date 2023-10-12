@@ -13,6 +13,7 @@ let currentPlayer = -1
 let previousPlayer = -1
 
 const FindImageById = (id) => document.getElementById(id)
+//player.js
 const PlayerMove = (destination) => {
     players[currentPlayer].currentPos = destination
     players[currentPlayer].history.push(destination)
@@ -83,6 +84,7 @@ const CreateNewButton = (buttonName, func) => {
 
 const RollDiceOnce = () => Math.round(Math.random()*5+1)
 
+//player.js
 const AddPlayer = (name) => {
     const newPlayer = new Player(name)
     players.push(newPlayer)
@@ -94,6 +96,7 @@ const AddPlayer = (name) => {
     return newPlayer
 }
 
+//player.js
 const SetCurrentPlayer = (playerObj) => {
     currentPlayer = playerObj.id
     //TODO: highlight the clicked button 
