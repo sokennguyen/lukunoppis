@@ -33,7 +33,7 @@ let previousPlayer = -1
 
 const DbTrial = async() => {
     let taskService = await import('./services/tasks.js')
-    return taskService.default({"tasks":tasks}) 
+    return taskService.create({"tasks":tasks}) 
 }
 
 //use this to set tasks for the board
