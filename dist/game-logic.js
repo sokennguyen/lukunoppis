@@ -1,3 +1,12 @@
+const DbTrial = async() => {
+    let taskService = await import('./services/tasks.js')
+    return taskService.create({"tasks":tasks}) 
+}
+const GetAllTasksets = async () => {
+    const tasksService=await import('./services/tasks.js')
+    return tasksService.getAll()
+}
+
 //NOTE: for discussion
 let destinationSquare = "Not yet";
 let tasks = [
@@ -31,10 +40,7 @@ let Player = function(name) {
 let currentPlayer = -1
 let previousPlayer = -1
 
-const DbTrial = async() => {
-    let taskService = await import('./services/tasks.js')
-    return taskService.create({"tasks":tasks}) 
-}
+
 
 //use this to set tasks for the board
 const SetTasks = (tasksList) => {

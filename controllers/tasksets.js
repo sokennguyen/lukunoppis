@@ -1,6 +1,11 @@
 const tasksetRouter = require('express').Router()
 const Taskset= require('../models/taskset')
 
+tasksetRouter.get('/',async(req,res)=> {
+    const tasksets = await Taskset.find({})
+    res.status(200).json(tasksets)
+})
+
 tasksetRouter.post('/',async(req,res)=> {
     const body = req.body
 

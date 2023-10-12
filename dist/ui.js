@@ -26,9 +26,10 @@ let currentFrame = 0;
 
 
 //              *** new toys ***
-const PlayerButtonClick = (clickedPlayer) => {
+const PlayerButtonClick = async (clickedPlayer) => {
     console.log(clickedPlayer.name+' clicked!')
-    console.log(DbTrial())
+    const hehe = await GetAllTasksets()
+    console.log(hehe);
 }
 const DefineSquaresList = () => {
     if (tasks.length<17) {
