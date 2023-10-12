@@ -1,6 +1,25 @@
-
 //NOTE: for discussion
 let destinationSquare = "Not yet";
+let tasks = [
+    "Kävellen kirjastoon lainaamaan.",
+    "Kuuntele äänikirjaa.",
+    "Esittele lempi satukirjasi.",
+    "Siivoa kirjahyllysi.",
+    "Tutustu tietokisjaan.",
+    "Lue majassa.",
+    "Lue ja venettyle samalla.",
+    "Etsi ja kuuntele kuunnelma.",
+    "Lue ääneen toisille.",
+    "Lue eläinsatu.",
+    "Kierätä tarpeetomat kirjat.",
+    "Pyydä joku lukemaan sinulle.",
+    "Lue ystävyydestä.",
+    "Lainaa kaverilta luettavaa.",
+    "Lue tosi oudossa paikassa.",
+    "Lue runo. Lähetä runo ääniviestinä tutullesi.",
+    "Etsi tietoa kiinostavasta aiheesta."
+];
+
 let players = [];
 let Player = function(name) {
     this.name = name
@@ -12,8 +31,18 @@ let Player = function(name) {
 let currentPlayer = -1
 let previousPlayer = -1
 
+const DbTrial = async() => {
+    let taskService = await import('./services/tasks.js')
+    return taskService.default({"tasks":tasks}) 
+}
+
+//use this to set tasks for the board
+const SetTasks = (tasksList) => {
+    //this function will handle saving tasks to DB
+    tasks=tasksList
+    return tasks
+}
 const FindImageById = (id) => document.getElementById(id)
-//player.js
 const PlayerMove = (destination) => {
     players[currentPlayer].currentPos = destination
     players[currentPlayer].history.push(destination)
@@ -45,7 +74,6 @@ const DiceButtonHandler = () => {
             console.log('Add A Player First')
     }
 }
-//TODO: prevent clicking starting square
 const SquareClickHandler = (index) => {
     try {
         if (!IsMovable()) {
@@ -70,7 +98,6 @@ const SquareClickHandler = (index) => {
             console.log('Add A Player First')
     }
 }
-//Wow this function is awesome:D -v
 const CreateNewButton = (buttonName, func) => {
     const maintable = document.getElementById("maintable");
     let aNewButton = document.createElement('button')
@@ -84,7 +111,6 @@ const CreateNewButton = (buttonName, func) => {
 
 const RollDiceOnce = () => Math.round(Math.random()*5+1)
 
-//player.js
 const AddPlayer = (name) => {
     const newPlayer = new Player(name)
     players.push(newPlayer)
@@ -96,24 +122,22 @@ const AddPlayer = (name) => {
     return newPlayer
 }
 
-//player.js
 const SetCurrentPlayer = (playerObj) => {
     currentPlayer = playerObj.id
     //TODO: highlight the clicked button 
     //TODO: switch board view to currentPlayer view (load their history)
 }
 
-//NOTE: should all player plays once in turn before selecting? 
-//      What if another player joins after?
-const IsAllPlayed = () => {
-    let allHasPlayed =true
-    players.forEach(player => {
-        if(player.currentPos===0) allHasPlayed = false
-    });
-    return allHasPlayed
-}
 const EditPlayerColor = (colorNumber, playerId) => {
 
     players[playerId].color=colorNumber
 }
 const GetPlayerHistoryById = (playerId) => players[playerId].history
+// move-in-turn won't be implemented
+// const IsAllPlayed = () => {
+//     let allHasPlayed =true
+//     players.forEach(player => {
+//         if(player.currentPos===0) allHasPlayed = false
+//     });
+//     return allHasPlayed
+// }

@@ -3,3 +3,4 @@
 .env
 Dockerfile
 fly.toml
+.vscode

@@ -1,39 +1,10 @@
 const NUM_SQUARES = 18;
 
-//TODO: assign images ids to Squares
-//TODO: also save player history to Squares
-function State() {
-    const Squares = [];
-    const texts = [
-        "Kävellen kirjastoon lainaamaan.",
-        "Kuuntele äänikirjaa.",
-        "Esittele lempi satukirjasi.",
-        "Siivoa kirjahyllysi.",
-        "Tutustu tietokisjaan.",
-        "Lue majassa.",
-        "Lue ja venettyle samalla.",
-        "Etsi ja kuuntele kuunnelma.",
-        "Lue ääneen toisille.",
-        "Lue eläinsatu.",
-        "Kierätä tarpeetomat kirjat.",
-        "Pyydä joku lukemaan sinulle.",
-        "Lue ystävyydestä.",
-        "Lainaa kaverilta luettavaa.",
-        "Lue tosi oudossa paikassa.",
-        "Lue runo. Lähetä runo ääniviestinä tutullesi.",
-        "Etsi tietoa kiinostavasta aiheesta."
-    ];
 
-
-    for (let i = 0; i < NUM_SQUARES; i++) {
-        Squares.push(new Square(i, texts[i]));
-    }
-
-    function Square(id, texts) {
-        this.id = id;
-        this.texts = texts;
-    }
-    return Squares
+//squares are used only by the frontend, backend deals with tasklist
+let Square = function (taskId,taskName) {
+    this.taskId=taskId
+    this.taskName=taskName
 }
 
 const pawnColors = ["pawns/black.png", "pawns/blue.png", "pawns/brown.png", "pawns/gray.png", "pawns/green.png", "pawns/pink.png", "pawns/purple.png", "pawns/red.png", "pawns/white.png", "pawns/yellow.png"];
@@ -54,13 +25,23 @@ let totalFrames = 16;
 let currentFrame = 0;
 
 
-//              *** new toy ***
+//              *** new toys ***
 const PlayerButtonClick = (clickedPlayer) => {
-    console.log(clickedPlayer.name+' clicked!');
-
+    console.log(clickedPlayer.name+' clicked!')
+    console.log(DbTrial())
 }
+const DefineSquaresList = () => {
+    if (tasks.length<17) {
+        console.log(`Every task must be defined. Missing ${17-tasks.length}`);
+        return 
+    }
+    const squares = tasks.map((task,index)=>new Square(index,task))
+    console.log(squares);
+    return squares
+}
+//              *** *** * *** ***
 
-//table.js
+
 const InitTable = () => {
     CreateNewButton('New game', () => {
         playerOnCss(true);
@@ -100,17 +81,15 @@ const InitTable = () => {
     drawTable();
 }
 
-//utils.js
 function getColourURL(colourId) {
+
     if (colourId >= 0 && colourId < pawnColors.length) {
         return pawnColors[colourId];
     }
 }
 
-//pawn.js
 async function update() { //This starts the animation
     if (!animationOn && destinationSquare !== myDestination) {
-        //console.log(destinationSquare)
         animationOn = true;
         await sendPawn(destinationSquare);
         myDestination = destinationSquare;
@@ -143,7 +122,6 @@ function addPawnCanvas() {
             document.body.appendChild(myCanvas);
 
             // Store the canvas reference in both arrays
-            //console.log(myCanvas)
             pawnsCanvas.push(myCanvas);
             let addplayer = document.getElementById('addPlayerdiv')
             addplayer.appendChild(myCanvas)
@@ -151,7 +129,6 @@ function addPawnCanvas() {
     }
 }
 
-//pawn.js
 function convertToPixels(targetPercentX, targetPercentY) {
 
     //Size of square
@@ -173,7 +150,6 @@ function convertToPixels(targetPercentX, targetPercentY) {
     };
 }
 
-//pawn.js
 function sendPawn(des) {
     //console.log(" destination t.sendpawn " + des)
     let desPos = positions[des];
@@ -182,13 +158,12 @@ function sendPawn(des) {
     drawPawn(y, x);
 }
 
-//pawn.js
 //Start position of pawn
 let startPixel = convertToPixels(87, 5)
 let xPosition = startPixel.x;
 let yPosition = startPixel.y;
 
-//pawn.js
+
 function drawPawn(y, x) {
 
     let XandY = convertToPixels(y, x)
@@ -256,7 +231,6 @@ function drawPawn(y, x) {
     }
 
 }
-//table.js
 function drawTable() {
     let startCordinates = [100, 10];
     let squareIndex = 0;
@@ -289,7 +263,10 @@ function drawTable() {
 
             let whopple1 = Math.floor(Math.random() * 2) - 1; // -2 to 2
             let whopple2 = Math.floor(Math.random() * 5) - 2;
+
+            //TODO: add image for start square
             let img = squareCss();
+
             positions[squareIndex] = [startCordinates[0] + whopple1, startCordinates[1] + whopple2];
             applyStylesToElement(img, {
                 position: 'absolute',
@@ -302,7 +279,7 @@ function drawTable() {
             //TODO: use the click event target index instead of image index
             img.addEventListener('click', (function (index) {
                 return function () {
-                    if (!animationOn) { //waiting time is nice
+                    if (!animationOn) {
                         SquareClickHandler(index)
                         update();
                     }
