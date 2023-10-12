@@ -1,0 +1,26 @@
+{
+  "name": "lukunoppis-backend",
+  "version": "1.0.0",
+  "description": "task list",
+  "main": "index.js",
+  "scripts": {
+    "dev": "cross-env NODE_ENV=test nodemon index.js",
+    "test": "npm jest"
+  },
+  "author": "kien nguyen",
+  "license": "ISC",
+  "dependencies": {
+    "axios": "^1.5.1",
+    "cors": "^2.8.5",
+    "cross-env": "^7.0.3",
+    "dotenv": "^16.3.1",
+    "express": "^4.18.2",
+    "jsonwebtoken": "^9.0.2",
+    "mongodb": "^5.7.0",
+    "mongoose": "^7.4.1"
+  },
+  "devDependencies": {
+    "@flydotio/dockerfile": "^0.4.10",
+    "nodemon": "^3.0.1"
+  }
+}
