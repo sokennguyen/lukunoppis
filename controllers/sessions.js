@@ -13,10 +13,11 @@ sessionRouter.post('/',async(request,response)=>{
         players:null,
         tasks:request.body.tasksetId
     })
+    const savedSession = await newSession.save()
 
     response
         .status(201)
-        .send({token})
+        .send({token,savedSession})
 })
 
 module.exports = sessionRouter

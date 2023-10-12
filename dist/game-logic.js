@@ -1,3 +1,4 @@
+
 //NOTE: for discussion
 let destinationSquare = "Not yet";
 let players = [];

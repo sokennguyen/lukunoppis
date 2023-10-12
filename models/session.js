@@ -3,12 +3,12 @@ const mongoose = require('mongoose')
 const sessionSchema = new mongoose.Schema({
     players:[{
         type: mongoose.Schema.Types.ObjectId,
-        ref:'playerset'
+        ref:'Playerset'
     }],
-    tasks:[{
+    tasks:{
         type:mongoose.Schema.Types.ObjectId,
-        ref:'taskset'
-    }]
+        ref:'Taskset'
+    }
 })
 
 sessionSchema.set('toJSON',{
