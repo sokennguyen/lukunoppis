@@ -1,3 +1,4 @@
+//not use due to project scope
 const jwt = require('jsonwebtoken')
 const sessionRouter = require('express').Router()
 const Session = require('../models/session')
