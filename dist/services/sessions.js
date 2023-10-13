@@ -1,3 +1,4 @@
+//not use due to project scope
 import axios from "https://cdn.skypack.dev/axios"
 const baseUrl = '/api/sessions'
 

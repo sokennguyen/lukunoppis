@@ -1,3 +1,4 @@
+//Data handling functions
 const DbTrial = async() => {
     let taskService = await import('./services/tasks.js')
     return taskService.create({"tasks":tasks}) 
@@ -6,10 +7,23 @@ const GetAllTasksets = async () => {
     const tasksService=await import('./services/tasks.js')
     return tasksService.getAll()
 }
+const SetTasks = (tasksList) => {
+    const stringedTasks = JSON.stringify(tasksList)
+    localStorage.setItem('tasks',stringedTasks)
+    tasks=tasksList
+    return localStorage.getItem('tasks')
+}
+const SetPlayers = (inputPlayers) => {
+    const stringedPlayers = JSON.stringify(inputPlayers)
+    localStorage.setItem('players',stringedPlayers)
+    players = inputPlayers
+    return localStorage.getItem('players')
+}
 
 //NOTE: for discussion
 let destinationSquare = "Not yet";
-let tasks = [
+let tasks = [];
+let inputTasks = [
     "Kävellen kirjastoon lainaamaan.",
     "Kuuntele äänikirjaa.",
     "Esittele lempi satukirjasi.",
@@ -43,11 +57,8 @@ let previousPlayer = -1
 
 
 //use this to set tasks for the board
-const SetTasks = (tasksList) => {
-    //this function will handle saving tasks to DB
-    tasks=tasksList
-    return tasks
-}
+//save tasks to localStorage
+
 const FindImageById = (id) => document.getElementById(id)
 const PlayerMove = (destination) => {
     players[currentPlayer].currentPos = destination
