@@ -89,7 +89,7 @@ function pawnCss() {
 }
 function squareCss() {
     let img = document.createElement("img");
-    img.src = 'kirja.png';  
+    img.src = './Kirja.png';  
     applyStylesToElement(img, {
         position: 'absolute',
         right: '0%',

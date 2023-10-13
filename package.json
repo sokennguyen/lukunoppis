@@ -4,6 +4,7 @@
   "description": "task list",
   "main": "index.js",
   "scripts": {
+    "start":"NODE_ENV=production node index.js",
     "dev": "cross-env NODE_ENV=test nodemon index.js",
     "test": "npm jest"
   },

@@ -1,7 +1,7 @@
 //Data handling functions
 const DbTrial = async() => {
     let taskService = await import('./services/tasks.js')
-    return taskService.create({"tasks":tasks}) 
+    return taskService.create({"tasks":inputTasks}) 
 }
 const GetAllTasksets = async () => {
     const tasksService=await import('./services/tasks.js')
@@ -17,6 +17,7 @@ const SetPlayers = (inputPlayers) => {
     const stringedPlayers = JSON.stringify(inputPlayers)
     localStorage.setItem('players',stringedPlayers)
     players = inputPlayers
+    console.log(localStorage.getItem('players'));
     return localStorage.getItem('players')
 }
 

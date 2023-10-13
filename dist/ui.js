@@ -7,7 +7,7 @@ let Square = function (taskId,taskName) {
     this.taskName=taskName
 }
 
-const pawnColors = ["pawns/black.png", "pawns/blue.png", "pawns/brown.png", "pawns/gray.png", "pawns/green.png", "pawns/pink.png", "pawns/purple.png", "pawns/red.png", "pawns/white.png", "pawns/yellow.png"];
+const pawnColors = ["./pawns/black.png", "./pawns/blue.png", "./pawns/brown.png", "./pawns/gray.png", "./pawns/green.png", "./pawns/pink.png", "./pawns/purple.png", "./pawns/red.png", "./pawns/white.png", "./pawns/yellow.png"];
 let animationOn = false;
 let addPlayerOn = false;
 let troot = trootCss();
@@ -28,8 +28,7 @@ let currentFrame = 0;
 //              *** new toys ***
 const PlayerButtonClick = async (clickedPlayer) => {
     console.log(clickedPlayer.name+' clicked!')
-    const inputPlayers = players
-    SetPlayers(inputPlayers)
+    console.log(SetTasks(inputTasks))
 }
 const DefineSquaresList = () => {
     if (tasks.length<17) {
