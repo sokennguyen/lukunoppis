@@ -58,6 +58,7 @@ const OpenTasksInputModal = () => {
         taskInputField.setAttribute('id',`${i}`)
         inputContainer.appendChild(taskInputField)
     }
+        
 
     const submitContainer = document.createElement('div')
     const savedTasksetsDropdown = document.createElement('select')
@@ -80,14 +81,22 @@ const OpenTasksInputModal = () => {
         const selectValue = document.querySelector('select').value 
         let tasksArray = []
         if (selectValue==='default'){
-            for (let i = 0; i < allTasksInput.length; i++){
+            console.log(allTasksInput);
+            for (let i = 0; i < 17; i++){
                 if (allTasksInput[i].value==='') {
+                    console.log(allTasksInput[i]);
                     alert('Please enter every tasks')
                     break
                 }
                 tasksArray.push(allTasksInput[i].value)
             }
-            PushTaskset(tasksArray)
+            let isGoodToPush = true
+            for (let i = 0; i < 17; i++){
+                if (allTasksInput[i].value==='') {
+                    isGoodToPush = false
+                }
+            }
+            if (isGoodToPush) PushTaskset(tasksArray)
         }
         else {
             tasksArray=testReturnedTasksets.find(taskset => taskset.id === selectValue).tasks
@@ -121,6 +130,10 @@ const OpenTasksInputModal = () => {
 
     modalForm.appendChild(inputContainer)
     modalForm.appendChild(submitContainer)
+
+    taskModal.addEventListener('close',()=> {
+        taskModal.innerHTML=''
+    })
     taskModal.appendChild(modalHeader)
     taskModal.appendChild(modalForm)
     troot.appendChild(taskModal)
@@ -237,7 +250,7 @@ function refreshUIplayers(localS) {
 }
 function refreshTable(player) {   
     let img = document.getElementById(0);
-    img.src = "./images/Start.png"
+    img.src = "./images/start.png"
     for (let i = 1; i < NUM_SQUARES; i++ ) {
         let img = document.getElementById(i);
         img.src = "./images/Kirja.png"
