@@ -1,47 +1,24 @@
 //Data handling functions
-const DbTrial = async() => {
+const PushTaskset = async(taskset) => {
     let taskService = await import('./services/tasks.js')
-    return taskService.create({"tasks":inputTasks}) 
+    return taskService.create({"tasks":taskset}) 
 }
 const GetAllTasksets = async () => {
     const tasksService=await import('./services/tasks.js')
     return tasksService.getAll()
 }
-const SetTasks = (tasksList) => {
-    const stringedTasks = JSON.stringify(tasksList)
-    localStorage.setItem('tasks',stringedTasks)
-    tasks=tasksList
-    return localStorage.getItem('tasks')
-}
-const SetPlayers = (inputPlayers) => {
-    const stringedPlayers = JSON.stringify(inputPlayers)
-    localStorage.setItem('players',stringedPlayers)
-    players = inputPlayers
-    console.log(localStorage.getItem('players'));
-    return localStorage.getItem('players')
-}
 
-//NOTE: for discussion
+//          ui.js stuff
+
+// at InitTable() localStorage validation -> else
+// GetAllTasksets().then(result =>{
+//     savedTasksets = result
+//     console.log('loaded');
+// } )
+
+
 let destinationSquare = "Not yet";
-let tasks = [];
-let inputTasks = [
-    "Kävellen kirjastoon lainaamaan.",
-    "Kuuntele äänikirjaa.",
-    "Esittele lempi satukirjasi.",
-    "Siivoa kirjahyllysi.",
-    "Tutustu tietokisjaan.",
-    "Lue majassa.",
-    "Lue ja venettyle samalla.",
-    "Etsi ja kuuntele kuunnelma.",
-    "Lue ääneen toisille.",
-    "Lue eläinsatu.",
-    "Kierätä tarpeetomat kirjat.",
-    "Pyydä joku lukemaan sinulle.",
-    "Lue ystävyydestä.",
-    "Lainaa kaverilta luettavaa.",
-    "Lue tosi oudossa paikassa.",
-    "Lue runo. Lähetä runo ääniviestinä tutullesi.",
-    "Etsi tietoa kiinostavasta aiheesta."
+let tasks = [
 ];
 
 let players = [];
@@ -55,15 +32,63 @@ let Player = function(name) {
 let currentPlayer = -1
 let previousPlayer = -1
 
-
-
 //use this to set tasks for the board
-//save tasks to localStorage
+const SetTasks = (tasksList) => {
+    const stringedTasks = JSON.stringify(tasksList)
+    localStorage.setItem('tasks',stringedTasks)
+    tasks=tasksList
+    return localStorage.getItem('tasks')
+}
+const SetPlayers = (inputPlayers) => {
+    const stringedPlayers = JSON.stringify(inputPlayers)
+    localStorage.setItem('players',stringedPlayers)
+    players = inputPlayers
+    console.log(localStorage.getItem('players'));
+    return localStorage.getItem('players')
+}
+const InitState = () => {
+    if (localStorage.getItem('tasks')) 
+        tasks = JSON.parse(localStorage.getItem('tasks'))
+    if (localStorage.getItem('players'))
+
+        players = JSON.parse(localStorage.getItem('players'))
+    return localStorage
+}
+//right now only clears players
+const WipeSessionHistory = () => {
+    if (localStorage.getItem('players')||localStorage.getItem('tasks')) localStorage.clear()
+    return true
+}
+const ClearPlayersButtons = () => {
+    const allPlayerButtons = document.querySelectorAll('button[class^="player-"]')
+    allPlayerButtons.forEach(button=> {
+        document.querySelector('#maintable').removeChild(button)
+    })
+    console.log(allPlayerButtons);
+
+}
+const LoadPlayerButtons = () => {
+    const allPlayerButtons = players.map(player => {
+        let playerButton = CreateNewButton(player.name, () => SetCurrentPlayer(player));
+        playerButton.setAttribute('class', 'player-' + player.id.toString())
+        const addedPlayerButton = document.querySelector(`.player-${player.id}`)
+        addedPlayerButton.addEventListener('click', () => {
+            console.log("this playerbutton from created from local storage")
+            hideAll = false;
+            refreshTable(players[player.id]);
+            PlayerButtonClick(player);
+        });
+
+        return addedPlayerButton
+    })
+    return allPlayerButtons;
+}
 
 const FindImageById = (id) => document.getElementById(id)
 const PlayerMove = (destination) => {
     players[currentPlayer].currentPos = destination
     players[currentPlayer].history.push(destination)
+    SetPlayers(players)
 }
 const IsMovable = () => currentPlayer === -1 ? false : true
 const DiceButtonHandler = () => {
@@ -81,12 +106,12 @@ const DiceButtonHandler = () => {
         }
         //Here adjust images atributes to include player
         const foundImg = FindImageById(players[currentPlayer].currentPos)
-        foundImg.src = 'Player_1.png'
+        foundImg.src = "./images/Kirja.png"
         destinationSquare = players[currentPlayer].currentPos
         previousPlayer = currentPlayer
         currentPlayer = -1
 
-        return players[currentPlayer].currentPos
+        return players[previousPlayer]
     } catch (error) {
         if (players.length == 0)
             console.log('Add A Player First')
@@ -109,6 +134,9 @@ const SquareClickHandler = (index) => {
         destinationSquare = players[currentPlayer].currentPos
         previousPlayer = currentPlayer
         currentPlayer = -1
+        playerMove = true
+        refreshTable(players[previousPlayer.id]);
+
 
         return players[currentPlayer].currentPos
     } catch (error) {
@@ -137,13 +165,12 @@ const AddPlayer = (name) => {
 
     const inputPlayerName = document.querySelector('#input-playername')
     inputPlayerName.value=null
+    SetPlayers(players)
     return newPlayer
 }
 
 const SetCurrentPlayer = (playerObj) => {
     currentPlayer = playerObj.id
-    //TODO: highlight the clicked button 
-    //TODO: switch board view to currentPlayer view (load their history)
 }
 
 const EditPlayerColor = (colorNumber, playerId) => {

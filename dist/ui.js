@@ -1,34 +1,29 @@
 const NUM_SQUARES = 18;
 
-
 //squares are used only by the frontend, backend deals with tasklist
-let Square = function (taskId,taskName) {
-    this.taskId=taskId
-    this.taskName=taskName
+let Square = function (taskId, taskName) {
+    this.taskId = taskId
+    this.taskName = taskName
 }
 
-const pawnColors = ["./pawns/black.png", "./pawns/blue.png", "./pawns/brown.png", "./pawns/gray.png", "./pawns/green.png", "./pawns/pink.png", "./pawns/purple.png", "./pawns/red.png", "./pawns/white.png", "./pawns/yellow.png"];
+let UIplayers = [];
 let animationOn = false;
 let addPlayerOn = false;
-let troot = trootCss();
-let addplayer = addPlayerdivCss()
-let myDestination = "Not yet";
+let hideAll = true;
+let playerMove = false;
+
 let pawnsCanvas = [];
 let positions = [];
 let selectedColor = 0;
 
+let troot = trootCss();
 
-let framesPerRow = 8;
-let frameWidth = 200;
-let frameHeight = 200;
-let totalFrames = 16;
-let currentFrame = 0;
+let savedTasksets = new Array()
+//              *** new toy ***
+const PlayerButtonClick = (clickedPlayer) => {
+    console.log(clickedPlayer.name + ' clicked!')
+    showPlayerCss(clickedPlayer.color)
 
-
-//              *** new toys ***
-const PlayerButtonClick = async (clickedPlayer) => {
-    console.log(clickedPlayer.name+' clicked!')
-    console.log(SetTasks(inputTasks))
 }
 const DefineSquaresList = () => {
     if (tasks.length<17) {
@@ -41,196 +36,262 @@ const DefineSquaresList = () => {
 }
 //              *** *** * *** ***
 
+const OpenTasksInputModal = () => {
+    const taskModal = document.createElement('dialog')
+
+    const modalHeader = document.createElement('h2')
+    modalHeader.textContent = 'Enter All Tasks'
+
+    const modalForm = document.createElement('form')
+    modalForm.setAttribute('method', 'dialog')
+
+    const inputContainer = document.createElement('div')
+    applyStylesToElement(inputContainer, {
+        maxWidth: '50vw'
+    });
+    for (let i = 0; i<17 ; i++){
+        const taskInputField = document.createElement('input')
+        applyStylesToElement(taskInputField,{
+            margin: '5px'
+        })
+        taskInputField.setAttribute('type','text')
+        taskInputField.setAttribute('id',`${i}`)
+        inputContainer.appendChild(taskInputField)
+    }
+
+    const submitContainer = document.createElement('div')
+    const savedTasksetsDropdown = document.createElement('select')
+    savedTasksetsDropdown.setAttribute('id','taskset-selector')
+    const defaultOption = document.createElement('option')
+    defaultOption.setAttribute('value','default')
+    defaultOption.innerText='Choose...'
+    savedTasksetsDropdown.appendChild(defaultOption)
+    const testReturnedTasksets = savedTasksets
+    savedTasksets.forEach(taskset => {
+        const option = document.createElement('option')
+        option.textContent = taskset.id
+        savedTasksetsDropdown.appendChild(option)
+    });
+    const saveButton = document.createElement('button')
+    saveButton.textContent = 'save and close'
+    saveButton.onclick=(e)=>{
+        e.preventDefault()
+        const allTasksInput = document.querySelectorAll('input:not(#input-playername)')
+        const selectValue = document.querySelector('select').value 
+        let tasksArray = []
+        if (selectValue==='default'){
+            for (let i = 0; i < allTasksInput.length; i++){
+                if (allTasksInput[i].value==='') {
+                    alert('Please enter every tasks')
+                    break
+                }
+                tasksArray.push(allTasksInput[i].value)
+            }
+            PushTaskset(tasksArray)
+        }
+        else {
+            tasksArray=testReturnedTasksets.find(taskset => taskset.id === selectValue).tasks
+        }
+        if (tasksArray.length===17){
+            SetTasks(tasksArray)
+            CreateNewButton('Clear Board',()=> {
+                WipeSessionHistory()
+                ClearPlayersButtons()
+                location.reload();
+            })
+            CreateNewButton('Roll Dice', () => {
+                if (!animationOn) { //waiting time is nice
+                    let player = DiceButtonHandler();
+                    //console.log(player)
+                    playerMove = true
+                    update(player);
+                }
+            });
+            const newGameButton = document.querySelector('.new-game-button')
+            troot.removeChild(newGameButton)
+            taskModal.close()
+        }
+    }
+    const label = document.createElement('label')
+    label.setAttribute('for','taskset-selector')
+    label.textContent='Or choose an existing taskset: '
+    submitContainer.appendChild(label)
+    submitContainer.appendChild(savedTasksetsDropdown)
+    submitContainer.appendChild(saveButton)
+
+    modalForm.appendChild(inputContainer)
+    modalForm.appendChild(submitContainer)
+    taskModal.appendChild(modalHeader)
+    taskModal.appendChild(modalForm)
+    troot.appendChild(taskModal)
+
+    taskModal.showModal()
+}
 
 const InitTable = () => {
-    CreateNewButton('New game', () => {
-        playerOnCss(true);
-        update();
-    });
-    CreateNewButton('Roll Dice', () => {
-        if (!animationOn) { //waiting time is nice
-            DiceButtonHandler();
-            update();
-        }
-    });
+    if (localStorage.getItem('players')||localStorage.getItem('tasks')){
+        CreateNewButton('Clear Board',()=> {
+            WipeSessionHistory()
+            ClearPlayersButtons()
+            location.reload();
+        })
+        CreateNewButton('Roll Dice', () => {
+            if (!animationOn) { //waiting time is nice
+                let player = DiceButtonHandler();
+                //console.log(player)
+                playerMove = true
+                update(player);
+            }
+        });
+    }
+    else {
+        GetAllTasksets().then(result =>{
+            savedTasksets = result
+            console.log('loaded tasksets');
+        } )
+        CreateNewButton('New game', () => {
+            //playerOnCss(true);
+            OpenTasksInputModal()
+        });
+    }
+    
+    
 
     let inputPlayerName = document.createElement('input')
     inputPlayerName.setAttribute('id', 'input-playername')
+
+    let addPlayerbtn = CreateNewButton('', () => { // Add player
+        if (!pawnColors[selectedColor][1]) { 
+            let newPlayer = AddPlayer(inputPlayerName.value);
+            const playerButton = document.querySelector(`.player-${newPlayer.id}`)
+            playerButton.addEventListener('click', () => {
+                hideAll = false;
+                console.log("this playerbutton from NOT created from local storage")
+                PlayerButtonClick(newPlayer);
+                refreshTable(players[newPlayer.id]);
+            });
+
+            EditPlayerColor(selectedColor, newPlayer.id);
+            //Create UIplayer
+            addUIplayer(selectedColor, newPlayer.currentPos)
+
+        }
+        else {
+            console.log("selected color " + selectedColor)
+            alert("Color already picked")
+        }
+    });
+    addPlayerbtn.setAttribute('id', 'addPlayer')
+
+    
+
+    drawTable();
+    playerOnScreenCss();
+    let addplayer = addPlayerdivCss();
     addplayer.appendChild(inputPlayerName)
-
-    let addPlayerbtn = CreateNewButton('Add Player', () => {
-        let newPlayer = AddPlayer(inputPlayerName.value);
-        const playerButton = document.querySelector(`.player-${newPlayer.id}`)
-        playerButton.addEventListener('click',()=>PlayerButtonClick(newPlayer))
-        EditPlayerColor(selectedColor, newPlayer.id);
-    });
-
-    let continueBtn = CreateNewButton('Continue', () => {
-        playerOnCss(false);
-    });
-
-    let canvas = canvasCss();
-
-    canvas.id = 'myCanvas';
-    troot.appendChild(canvas);
-    canvas.style.pointerEvents = 'none';
-
     addplayer.appendChild(inputPlayerName)
     addplayer.appendChild(addPlayerbtn)
-    addplayer.appendChild(continueBtn)
-    drawTable();
-}
+    LoadPlayerButtons()
+    inputPlayerNameCss();
 
+
+}
 function getColourURL(colourId) {
 
     if (colourId >= 0 && colourId < pawnColors.length) {
-        return pawnColors[colourId];
+        //console.log(pawnColors[[colourId][0]])
+        return pawnColors[colourId][0];
     }
 }
 
-async function update() { //This starts the animation
-    if (!animationOn && destinationSquare !== myDestination) {
-        animationOn = true;
-        await sendPawn(destinationSquare);
-        myDestination = destinationSquare;
+async function update(player) { //This starts the animation
+    console.log(player)
+    console.log("t.update")
+
+    if (player != null) {
+
+        if (!animationOn && player.currentPos !== aniCtrl.myDestination) {
+            await showPlayerCss(player.color);
+            //console.log(destinationSquare)
+            animationOn = true;
+            await UIplayers[player.color].sendPawn(destinationSquare);
+            aniCtrl.myDestination = destinationSquare;
+        }
+        else {
+
+        }
     }
 }
+function refreshUIplayers(localS) {
+    if (localS.getItem('players')) {
+        showPlayerCss(0);
+        let myPlayers = JSON.parse(localS.getItem('players'));
+        myPlayers.forEach(myPlayer => {
 
-
-
-// This draws the first frame of the spritesheet onto a canvas
-// I would have manually cropped these images 30 times by now XD
-function addPawnCanvas() {
-    for (let i = 0; i < pawnColors.length; i++) {
-        
-        let myCanvas = document.createElement('canvas');
-        myCanvas.width = frameWidth * 0.25; // Half the original width
-        myCanvas.height = frameHeight * 0.25; // Half the original height
-
-        myCanvas.addEventListener('click', function (event) {
-            selectedColor = i;
+            //First hide everything
+            previousPlayer = myPlayer.id
+            addUIplayer(myPlayer.color, myPlayer.currentPos)
 
         });
-
-        let context = myCanvas.getContext('2d');
-        let img = new Image();
-        img.src = pawnColors[i];
-
-        img.onload = function () {
-            context.drawImage(img, 0, 0, frameWidth, frameHeight, 0, 0, myCanvas.width, myCanvas.height);
-
-            document.body.appendChild(myCanvas);
-
-            // Store the canvas reference in both arrays
-            pawnsCanvas.push(myCanvas);
-            let addplayer = document.getElementById('addPlayerdiv')
-            addplayer.appendChild(myCanvas)
-        };
     }
 }
-
-function convertToPixels(targetPercentX, targetPercentY) {
-
-    //Size of square
-    let adjustX = 8;
-    let adjustY = 7;
-
-    targetPercentX += adjustX;
-    targetPercentY += adjustY;
-    let fixitX = 100 - targetPercentX;
-    let windowWidthPixels = window.innerWidth;
-    let windowHeightPixels = window.innerHeight;
-
-    let targetX = (fixitX / 100) * windowWidthPixels;
-    let targetY = (targetPercentY / 100) * windowHeightPixels;
-
-    return {
-        x: targetX,
-        y: targetY
-    };
-}
-
-function sendPawn(des) {
-    //console.log(" destination t.sendpawn " + des)
-    let desPos = positions[des];
-    let x = desPos[1];
-    let y = desPos[0];
-    drawPawn(y, x);
-}
-
-//Start position of pawn
-let startPixel = convertToPixels(87, 5)
-let xPosition = startPixel.x;
-let yPosition = startPixel.y;
-
-
-function drawPawn(y, x) {
-
-    let XandY = convertToPixels(y, x)
-    let targetX = XandY.x;
-    let targetY = XandY.y;
-
-
-    canvas = document.getElementById('myCanvas');
-    let ctx = canvas.getContext('2d');
-
-    let img = new Image();
-
-    let pawnColourId = players[previousPlayer].color;
-    img.src = getColourURL(pawnColourId);
-
-
-    let speed = 20;
-    let distanceX = targetX - xPosition;
-    let distanceY = targetY - yPosition;
-    let frames = Math.sqrt(distanceX ** 2 + distanceY ** 2) / speed;
-    let speedX = distanceX / frames;
-    let speedY = distanceY / frames;
-
-    let animationId; // To keep track of the animation frame ID
-
-    img.onload = function () {
-        animationId = requestAnimationFrame(animateSprite);
-    };
-
-    let scale = window.devicePixelRatio;
-    canvas.width = canvas.clientWidth * scale;
-    canvas.height = canvas.clientHeight * scale;
-    ctx.scale(scale, scale);
-
-
-    function animateSprite() {
-        // Movement towards target logic
-        if (Math.abs(targetX - xPosition) > Math.abs(speedX) || Math.abs(targetY - yPosition) > Math.abs(speedY)) {
-            xPosition += speedX;
-            yPosition += speedY;
-            animationId = requestAnimationFrame(animateSprite);
-        } else {
-            // Once the target is reached, reset to the first frame
-            currentFrame = 0;
-            cancelAnimationFrame(animationId); // Stop the animation once the target is reached
-            //console.log('Animation finished!');
-            animationOn = false;
-        }
-
-        // Clear canvas
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-        // Calculate current row and column for animation
-        let currentRow = Math.floor(currentFrame / framesPerRow);
-        let currentCol = currentFrame % framesPerRow;
-
-        let desiredWidth = frameWidth * 0.2;
-        let desiredHeight = frameHeight * 0.2;
-
-        // Draw the sprite frame at the current position
-        ctx.drawImage(img, currentCol * frameWidth, currentRow * frameHeight, frameWidth, frameHeight, xPosition, yPosition, desiredWidth, desiredHeight);
-
-        // Move to the next frame for sprite animation
-        currentFrame = (currentFrame + 1) % totalFrames;
+function refreshTable(player) {   
+    let img = document.getElementById(0);
+    img.src = "./images/Start.png"
+    for (let i = 1; i < NUM_SQUARES; i++ ) {
+        let img = document.getElementById(i);
+        img.src = "./images/Kirja.png"
     }
+    if (!hideAll && player != null) {
+    player.history.forEach(move => {
+        let img = document.getElementById(move);
+        img.src = bookColors[player.color];
+    });
+    }
+    loadColor();
 
 }
+function refreshAll() {
+    refreshTable();
+    showPlayerCss();
+
+}
+function addUIplayer(colorIndex,curpos) {
+    let playerPawn = createUIPlayer(colorIndex)
+    UIplayers[colorIndex] = playerPawn;
+    pawnColors[colorIndex][1] = true;
+    playerPawn.sendPawn(curpos);
+}
+// This draws the first frame of the spritesheet onto a canvas
+//function addPawnCanvas() {
+//    for (let i = 0; i < pawnColors.length; i++) {
+        
+//        let myCanvas = document.createElement('canvas');
+//        myCanvas.width = aniCtrl.frameWidth * 0.25; // Half the original width
+//        myCanvas.height = aniCtrl.frameHeight * 0.25; // Half the original height
+
+//        myCanvas.addEventListener('click', function (event) {
+//            selectedColor = i;
+
+//        });
+
+//        let context = myCanvas.getContext('2d');
+//        let img = new Image();
+//        img.src = getColourURL(i);
+
+//        img.onload = function () {
+//            context.drawImage(img, 0, 0, aniCtrl.frameWidth, aniCtrl.frameHeight, 0, 0, myCanvas.width, myCanvas.height);
+
+//            document.body.appendChild(myCanvas);
+
+//            // Store the canvas reference in both arrays
+//            pawnsCanvas.push(myCanvas);
+//            let addplayer = document.getElementById('addPlayerdiv')
+//           // addplayer.appendChild(myCanvas)
+//        };
+//    }
+//}
+
 function drawTable() {
     let startCordinates = [100, 10];
     let squareIndex = 0;
@@ -275,13 +336,13 @@ function drawTable() {
                 width: '8vw',
                 height: '7vw',
             });
-            img.setAttribute('id', squareIndex)
+            img.setAttribute('id',squareIndex)
             //TODO: use the click event target index instead of image index
             img.addEventListener('click', (function (index) {
                 return function () {
                     if (!animationOn) {
                         SquareClickHandler(index)
-                        update();
+                        update(players[previousPlayer]);
                     }
                 };
             })(squareIndex));
@@ -290,13 +351,23 @@ function drawTable() {
         }
     }
 }
+function exitBigBook() {
+    bigBookOnCss(false);
+
+
+}
 function appendPawnCanvas() {
     for (i = 0; i > pawnsCanvas.length; i++) {
 
     }
 }
 function start() {
+    let localS = InitState()   
     InitTable()
     //append canvas
-    addPawnCanvas();
+    //addPawnCanvas();
+    refreshUIplayers(localS);
+    bigBookCss();
+
+
 }
